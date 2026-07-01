@@ -1,0 +1,19 @@
+{
+  "name": "microshop-api-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Public API gateway for MicroShop",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
+  }
+}
+

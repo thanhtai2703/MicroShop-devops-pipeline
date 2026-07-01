@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#F3ECDD;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+input::placeholder{color:#A79E88}
+@keyframes shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+@keyframes slideup{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes drawerin{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#F3ECDD;color:#1B1913;font-family:'Archivo',system-ui,sans-serif;font-size:15px;line-height:1.5">
+
+  <header style="position:sticky;top:0;z-index:40;background:rgba(243,236,221,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #DFD3BC">
+    <div style="max-width:1240px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <a href="#" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#1B1913;flex:0 0 auto">
+        <span style="width:32px;height:32px;border-radius:9px;background:#2E6A4E;display:grid;place-items:center;box-shadow:inset 0 0 0 3px rgba(246,241,230,.14)">
+          <span style="width:11px;height:14px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;background:#F6F1E6"></span>
+        </span>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em">MicroShop</span>
+      </a>
+
+      <form onSubmit="{{ onSearchSubmit }}" style="flex:1 1 300px;order:0;display:flex;align-items:center;gap:9px;background:#FBF6EC;border:1px solid #DFD3BC;border-radius:11px;padding:0 13px;height:44px;min-width:190px" style-focus="border-color:#2E6A4E">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8C846F" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+        <input value="{{ query }}" onChange="{{ onSearch }}" placeholder="Search coffee, blends, gear…" style="border:none;background:transparent;outline:none;flex:1;font-size:14px;color:#1B1913;height:100%">
+        <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ clearSearch }}" aria-label="Clear" style="border:none;background:#ECE2CE;color:#5F5847;width:22px;height:22px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:13px;line-height:1;padding:0">×</button>
+        </sc-if>
+      </form>
+
+      <div style="display:flex;align-items:center;gap:10px;flex:0 0 auto">
+        <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ login }}" style="background:none;border:none;color:#1B1913;font-weight:600;font-size:14px;cursor:pointer;padding:10px 12px;border-radius:9px" style-hover="background:#ECE2CE">Log in</button>
+          <button onClick="{{ login }}" style="background:#2E6A4E;color:#F6F1E6;border:none;font-weight:600;font-size:14px;cursor:pointer;padding:10px 16px;border-radius:9px" style-hover="background:#245840">Register</button>
+        </sc-if>
+
+        <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative">
+            <button onClick="{{ toggleAccount }}" style="display:flex;align-items:center;gap:9px;background:#FBF6EC;border:1px solid #DFD3BC;border-radius:11px;padding:6px 11px 6px 6px;cursor:pointer;color:#1B1913;height:44px" style-hover="border-color:#C9BA9E">
+              <span style="width:30px;height:30px;border-radius:8px;background:#C4552C;color:#F6F1E6;display:grid;place-items:center;font-weight:700;font-size:14px">{{ userInitial }}</span>
+              <span style="font-weight:600;font-size:14px;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ userName }}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8C846F" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </button>
+            <sc-if value="{{ accountOpen }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ toggleAccount }}" style="position:fixed;inset:0;z-index:30"></div>
+              <div style="position:absolute;right:0;top:52px;z-index:31;width:224px;background:#FBF6EC;border:1px solid #DFD3BC;border-radius:13px;box-shadow:0 18px 44px -20px rgba(27,25,19,.4);padding:8px;animation:slideup .16s ease">
+                <div style="padding:10px 12px 12px">
+                  <div style="font-weight:600;font-size:14px">{{ userName }}</div>
+                  <div style="font-size:12.5px;color:#8C846F">{{ userEmail }}</div>
+                </div>
+                <div style="height:1px;background:#DFD3BC;margin:2px 0 6px"></div>
+                <a href="#" style="display:block;padding:10px 12px;border-radius:8px;text-decoration:none;color:#1B1913;font-size:14px" style-hover="background:#ECE2CE">Profile</a>
+                <a href="#" style="display:block;padding:10px 12px;border-radius:8px;text-decoration:none;color:#1B1913;font-size:14px" style-hover="background:#ECE2CE">Order history</a>
+                <div style="height:1px;background:#DFD3BC;margin:6px 0"></div>
+                <button onClick="{{ logout }}" style="display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:none;background:none;color:#A83A2C;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#F4E3DA">Log out</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <button onClick="{{ toggleCart }}" aria-label="Cart" style="position:relative;width:44px;height:44px;border-radius:11px;background:#FBF6EC;border:1px solid #DFD3BC;cursor:pointer;display:grid;place-items:center;color:#1B1913" style-hover="border-color:#C9BA9E">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B1913" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>
+          <sc-if value="{{ hasCartCount }}" hint-placeholder-val="{{ false }}">
+            <span style="position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#2E6A4E;color:#F6F1E6;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;display:grid;place-items:center;border:2px solid #F3ECDD">{{ cartCount }}</span>
+          </sc-if>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section style="max-width:1240px;margin:0 auto;padding:56px 24px 30px;display:flex;gap:44px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1 1 380px;min-width:280px">
+      <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.12em;color:#2E6A4E;text-transform:uppercase;margin-bottom:18px">Est. 2019 — Portland, OR</div>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2.6rem,5.4vw,4.6rem);line-height:.98;letter-spacing:-.03em;margin:0 0 20px;text-wrap:balance">Coffee, roasted the morning it ships.</h1>
+      <p style="font-size:17px;color:#5F5847;max-width:440px;margin:0 0 26px">Small-batch single origins and blends from growers we know by name. Ground fresh, sealed same-day, on your doorstep in two.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.02em">
+        <span style="padding:8px 13px;border-radius:999px;background:#FBF6EC;border:1px solid #DFD3BC;color:#5F5847">FREE SHIP OVER $40</span>
+        <span style="padding:8px 13px;border-radius:999px;background:#FBF6EC;border:1px solid #DFD3BC;color:#5F5847">ROASTED TO ORDER</span>
+        <span style="padding:8px 13px;border-radius:999px;background:#FBF6EC;border:1px solid #DFD3BC;color:#5F5847">SUBSCRIBE & SAVE 15%</span>
+      </div>
+    </div>
+    <div style="flex:1 1 340px;min-width:280px;aspect-ratio:4/3;position:relative">
+      <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="hero-shot" shape="rounded" radius="18" placeholder="hero · lifestyle shot" style="position:absolute;inset:0;width:100%;height:100%" hint-size="100%,100%"></x-import>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:8px 24px 4px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+    <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em;margin:0">Shop all coffee</h2>
+    <div style="font-family:'Space Mono',monospace;font-size:12.5px;color:#8C846F">{{ countLabel }}</div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:16px 24px 0;display:flex;gap:9px;flex-wrap:wrap">
+    <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+      <sc-if value="{{ cat.isActive }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ cat.onClick }}" style="padding:9px 16px;border-radius:999px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;white-space:nowrap;border:1px solid #2E6A4E;background:#2E6A4E;color:#F6F1E6">{{ cat.label }}</button>
+      </sc-if>
+      <sc-if value="{{ cat.isInactive }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ cat.onClick }}" style="padding:9px 16px;border-radius:999px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;white-space:nowrap;border:1px solid #DFD3BC;background:#FBF6EC;color:#5F5847" style-hover="border-color:#C9BA9E;color:#1B1913">{{ cat.label }}</button>
+      </sc-if>
+    </sc-for>
+  </section>
+
+  <main style="max-width:1240px;margin:0 auto;padding:26px 24px 70px">
+
+    <sc-if value="{{ showLoading }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px">
+        <sc-for list="{{ skeletons }}" as="sk" hint-placeholder-count="8">
+          <div style="background:#FBF6EC;border:1px solid #DFD3BC;border-radius:14px;overflow:hidden">
+            <div style="aspect-ratio:4/5;background:linear-gradient(90deg,#ECE2CE 25%,#F3ECDD 37%,#ECE2CE 63%);background-size:800px 100%;animation:shimmer 1.5s infinite linear"></div>
+            <div style="padding:16px">
+              <div style="height:11px;width:44%;border-radius:5px;background:#ECE2CE;margin-bottom:12px"></div>
+              <div style="height:15px;width:78%;border-radius:5px;background:#ECE2CE;margin-bottom:10px"></div>
+              <div style="height:11px;width:90%;border-radius:5px;background:#ECE2CE;margin-bottom:20px"></div>
+              <div style="height:34px;width:100%;border-radius:9px;background:#ECE2CE"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px solid #E4C9BE;background:#F7E9E2;border-radius:16px;padding:52px 28px;text-align:center;max-width:560px;margin:20px auto;animation:fadein .3s ease">
+        <div style="width:52px;height:52px;border-radius:14px;background:#A83A2C;display:grid;place-items:center;margin:0 auto 20px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F6F1E6" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5"></path><circle cx="12" cy="17" r="0.4"></circle><path d="M10.3 3.9L2.4 18a1.9 1.9 0 0 0 1.7 2.9h15.8a1.9 1.9 0 0 0 1.7-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z"></path></svg>
+        </div>
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin:0 0 8px">Service unavailable</h3>
+        <p style="color:#7A5449;margin:0 0 22px;font-size:15px">We couldn't reach the roastery just now. Your cart is safe — give it another try.</p>
+        <button onClick="{{ retry }}" style="background:#A83A2C;color:#F6F1E6;border:none;font-weight:600;font-size:14px;padding:12px 22px;border-radius:10px;cursor:pointer" style-hover="background:#8E3023">Try again</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1px dashed #C9BA9E;background:#FBF6EC;border-radius:16px;padding:56px 28px;text-align:center;max-width:560px;margin:20px auto;animation:fadein .3s ease">
+        <div style="width:52px;height:52px;border-radius:14px;background:#ECE2CE;display:grid;place-items:center;margin:0 auto 20px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8C846F" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+        </div>
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin:0 0 8px">Nothing brewing here</h3>
+        <p style="color:#8C846F;margin:0 0 22px;font-size:15px">No products match your search or filter. Try a different roast or clear your filters.</p>
+        <button onClick="{{ emptyClear }}" style="background:#2E6A4E;color:#F6F1E6;border:none;font-weight:600;font-size:14px;padding:12px 22px;border-radius:10px;cursor:pointer" style-hover="background:#245840">Clear filters</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showGrid }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px">
+        <sc-for list="{{ products }}" as="item" hint-placeholder-count="8">
+          <div style="background:#FBF6EC;border:1px solid #DFD3BC;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease" style-hover="transform:translateY(-3px);box-shadow:0 16px 34px -22px rgba(27,25,19,.5);border-color:#C9BA9E">
+            <div style="position:relative;aspect-ratio:4/5">
+              <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="{{ item.slotId }}" shape="rect" placeholder="{{ item.placeholderLabel }}" style="position:absolute;inset:0;width:100%;height:100%" hint-size="100%,100%"></x-import>
+              <span style="position:absolute;top:11px;left:11px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;background:rgba(243,236,221,.92);color:#5F5847;padding:5px 9px;border-radius:999px;backdrop-filter:blur(4px)">{{ item.tag }}</span>
+              <sc-if value="{{ item.outOfStock }}" hint-placeholder-val="{{ false }}">
+                <span style="position:absolute;top:11px;right:11px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;background:#1B1913;color:#F3ECDD;padding:5px 9px;border-radius:999px">Sold out</span>
+              </sc-if>
+              <sc-if value="{{ item.lowStock }}" hint-placeholder-val="{{ false }}">
+                <span style="position:absolute;top:11px;right:11px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;background:#C4552C;color:#F6F1E6;padding:5px 9px;border-radius:999px">{{ item.stockText }}</span>
+              </sc-if>
+            </div>
+            <div style="padding:15px 16px 16px;display:flex;flex-direction:column;flex:1">
+              <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.01em;margin:0 0 5px;line-height:1.15">{{ item.name }}</h3>
+              <p style="font-size:13px;color:#8C846F;margin:0 0 16px;line-height:1.45;flex:1">{{ item.notes }}</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:18px;color:#1B1913">{{ item.priceLabel }}</span>
+                <sc-if value="{{ item.inStock }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ item.onAdd }}" style="background:#2E6A4E;color:#F6F1E6;border:none;font-weight:600;font-size:13.5px;padding:9px 15px;border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:6px" style-hover="background:#245840">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F6F1E6" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add
+                  </button>
+                </sc-if>
+                <sc-if value="{{ item.outOfStock }}" hint-placeholder-val="{{ false }}">
+                  <button disabled style="background:#ECE2CE;color:#A79E88;border:none;font-weight:600;font-size:13.5px;padding:9px 15px;border-radius:9px;cursor:not-allowed">Notify me</button>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </main>
+
+  <footer style="border-top:1px solid #DFD3BC;background:#FBF6EC">
+    <div style="max-width:1240px;margin:0 auto;padding:32px 24px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.02em">MicroShop</div>
+      <div style="font-family:'Space Mono',monospace;font-size:12px;color:#8C846F">© 2026 MicroShop Coffee Co. — Portland, OR</div>
+    </div>
+  </footer>
+
+  <sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCart }}" style="position:fixed;inset:0;z-index:50;background:rgba(27,25,19,.4);animation:fadein .2s ease"></div>
+    <aside style="position:fixed;top:0;right:0;bottom:0;z-index:51;width:min(420px,100vw);background:#F3ECDD;border-left:1px solid #DFD3BC;box-shadow:-24px 0 60px -30px rgba(27,25,19,.6);display:flex;flex-direction:column;animation:drawerin .26s cubic-bezier(.22,.61,.36,1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid #DFD3BC">
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;margin:0">Your cart <span style="font-family:'Space Mono',monospace;font-size:13px;color:#8C846F;font-weight:400">({{ cartCount }})</span></h3>
+        <button onClick="{{ closeCart }}" aria-label="Close" style="width:34px;height:34px;border-radius:9px;border:1px solid #DFD3BC;background:#FBF6EC;cursor:pointer;display:grid;place-items:center;color:#5F5847" style-hover="border-color:#C9BA9E">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5F5847" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </button>
+      </div>
+
+      <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 30px">
+          <div style="width:56px;height:56px;border-radius:15px;background:#ECE2CE;display:grid;place-items:center;margin-bottom:18px">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8C846F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>
+          </div>
+          <h4 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;margin:0 0 6px">Your cart is empty</h4>
+          <p style="color:#8C846F;font-size:14px;margin:0 0 22px">Add a bag of something good to get started.</p>
+          <button onClick="{{ closeCart }}" style="background:#2E6A4E;color:#F6F1E6;border:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:10px;cursor:pointer" style-hover="background:#245840">Browse coffee</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;overflow-y:auto;padding:14px 18px">
+          <sc-for list="{{ cartLines }}" as="line" hint-placeholder-count="2">
+            <div style="display:flex;gap:13px;padding:14px 0;border-bottom:1px solid #E6DBC6">
+              <div style="width:62px;height:62px;flex:0 0 auto;border-radius:10px;background:repeating-linear-gradient(45deg,#ECE2CE 0 8px,#E4D8C0 8px 16px);border:1px solid #DFD3BC"></div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;gap:8px">
+                  <div style="font-weight:600;font-size:14.5px;line-height:1.25">{{ line.name }}</div>
+                  <button onClick="{{ line.onRemove }}" aria-label="Remove" style="border:none;background:none;color:#A79E88;cursor:pointer;padding:2px;flex:0 0 auto" style-hover="color:#A83A2C">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"></path></svg>
+                  </button>
+                </div>
+                <div style="font-family:'Space Mono',monospace;font-size:12.5px;color:#8C846F;margin:2px 0 10px">{{ line.priceLabel }} each</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                  <div style="display:flex;align-items:center;border:1px solid #DFD3BC;border-radius:9px;background:#FBF6EC;overflow:hidden">
+                    <button onClick="{{ line.onDec }}" aria-label="Decrease" style="width:30px;height:30px;border:none;background:none;cursor:pointer;color:#5F5847;font-size:16px;display:grid;place-items:center" style-hover="background:#ECE2CE">−</button>
+                    <span style="min-width:26px;text-align:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700">{{ line.quantity }}</span>
+                    <button onClick="{{ line.onInc }}" aria-label="Increase" style="width:30px;height:30px;border:none;background:none;cursor:pointer;color:#5F5847;font-size:16px;display:grid;place-items:center" style-hover="background:#ECE2CE">+</button>
+                  </div>
+                  <div style="font-family:'Space Mono',monospace;font-weight:700;font-size:14.5px">{{ line.lineTotal }}</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border-top:1px solid #DFD3BC;padding:18px 22px;background:#FBF6EC">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+            <span style="color:#5F5847;font-size:14px">Subtotal</span>
+            <span style="font-family:'Space Mono',monospace;font-weight:700;font-size:20px">{{ subtotal }}</span>
+          </div>
+          <div style="font-size:12.5px;color:#8C846F;margin-bottom:16px">Shipping & taxes calculated at checkout.</div>
+          <button style="width:100%;background:#2E6A4E;color:#F6F1E6;border:none;font-weight:700;font-size:15px;padding:14px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="background:#245840">
+            Checkout
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F6F1E6" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </sc-if>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;background:#1B1913;color:#F3ECDD;padding:13px 20px;border-radius:12px;box-shadow:0 16px 40px -18px rgba(27,25,19,.7);display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;animation:slideup .22s ease">
+      <span style="width:20px;height:20px;border-radius:50%;background:#2E6A4E;display:grid;place-items:center;flex:0 0 auto">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F6F1E6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"></path></svg>
+      </span>
+      {{ toast }}
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;loggedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo state&quot;},&quot;pageState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ready&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;],&quot;default&quot;:&quot;ready&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo state&quot;}}">
+class Component extends DCLogic {
+  state = {
+    query: '', category: 'All', cart: [],
+    cartOpen: false, accountOpen: false,
+    loggedInOverride: null, stateOverride: null, toast: ''
+  };
+
+  products = [
+    { id: 'eth-yirg', name: 'Ethiopia Yirgacheffe', category: 'Single Origin', price: 21, stock: 24, notes: 'Jasmine, bergamot, stone fruit', ph: '12oz · whole bean' },
+    { id: 'col-huila', name: 'Colombia Huila', category: 'Single Origin', price: 19, stock: 40, notes: 'Caramel, red apple, cocoa', ph: '12oz · whole bean' },
+    { id: 'gua-antigua', name: 'Guatemala Antigua', category: 'Single Origin', price: 20, stock: 6, notes: 'Milk chocolate, orange, almond', ph: '12oz · whole bean' },
+    { id: 'sum-mand', name: 'Sumatra Mandheling', category: 'Single Origin', price: 20, stock: 0, notes: 'Cedar, dark chocolate, earth', ph: '12oz · whole bean' },
+    { id: 'midnight', name: 'Midnight Blend', category: 'Blends', price: 17, stock: 60, notes: 'Molasses, toasted walnut, smoke', ph: '12oz · whole bean' },
+    { id: 'house', name: 'House Blend', category: 'Blends', price: 16, stock: 80, notes: 'Brown sugar, hazelnut, balanced', ph: '12oz · whole bean' },
+    { id: 'nero', name: 'Espresso Nero', category: 'Espresso', price: 18, stock: 32, notes: 'Dark cocoa, dried cherry, syrupy', ph: '12oz · whole bean' },
+    { id: 'decaf', name: 'Decaf Swiss Water', category: 'Decaf', price: 18, stock: 15, notes: 'Maple, plum, gentle & clean', ph: '12oz · whole bean' },
+    { id: 'coldbrew', name: 'Cold Brew Concentrate', category: 'Cold Brew', price: 15, stock: 8, notes: 'Smooth, chocolatey, low-acid', ph: '32oz · bottle' },
+    { id: 'dripper', name: 'Ceramic Pour-Over Dripper', category: 'Equipment', price: 34, stock: 21, notes: 'Matte stoneware · size 02', ph: 'product shot' },
+    { id: 'kettle', name: 'Gooseneck Kettle', category: 'Equipment', price: 82, stock: 12, notes: '1L · precision pour · matte black', ph: 'product shot' },
+    { id: 'grinder', name: 'Conical Burr Grinder', category: 'Equipment', price: 149, stock: 5, notes: '40mm burrs · 30 settings', ph: 'product shot' }
+  ];
+
+  categoryList = ['All', 'Single Origin', 'Blends', 'Espresso', 'Decaf', 'Cold Brew', 'Equipment'];
+
+  money(n) { return '$' + n.toFixed(2); }
+
+  addToCart(p) {
+    if (p.stock <= 0) return;
+    this.setState(s => {
+      const ex = s.cart.find(i => i.product_id === p.id);
+      const cart = ex
+        ? s.cart.map(i => i.product_id === p.id ? { ...i, quantity: i.quantity + 1 } : i)
+        : [...s.cart, { product_id: p.id, name: p.name, price: p.price, quantity: 1 }];
+      return { cart };
+    });
+    this.flash('Added ' + p.name);
+  }
+
+  changeQty(id, d) {
+    this.setState(s => ({ cart: s.cart.map(i => i.product_id === id ? { ...i, quantity: Math.max(1, i.quantity + d) } : i) }));
+  }
+
+  removeLine(id) {
+    this.setState(s => ({ cart: s.cart.filter(i => i.product_id !== id) }));
+  }
+
+  flash(msg) {
+    clearTimeout(this._t);
+    this.setState({ toast: msg });
+    this._t = setTimeout(() => this.setState({ toast: '' }), 1900);
+  }
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  renderVals() {
+    const money = this.money;
+    const effState = this.state.stateOverride ?? this.props.pageState ?? 'ready';
+    const loggedIn = this.state.loggedInOverride ?? this.props.loggedIn ?? true;
+
+    const q = this.state.query.trim().toLowerCase();
+    const cat = this.state.category;
+    let list = this.products;
+    if (cat !== 'All') list = list.filter(p => p.category === cat);
+    if (q) list = list.filter(p => (p.name + ' ' + p.notes + ' ' + p.category).toLowerCase().includes(q));
+
+    const products = list.map(p => ({
+      ...p,
+      slotId: 'prod-' + p.id,
+      tag: p.category,
+      placeholderLabel: p.ph,
+      priceLabel: money(p.price),
+      inStock: p.stock > 0,
+      outOfStock: p.stock <= 0,
+      lowStock: p.stock > 0 && p.stock <= 8,
+      stockText: 'Only ' + p.stock + ' left',
+      onAdd: () => this.addToCart(p)
+    }));
+
+    const forceEmpty = effState === 'empty';
+    const showLoading = effState === 'loading';
+    const showError = effState === 'error';
+    const showEmpty = !showLoading && !showError && (forceEmpty || products.length === 0);
+    const showGrid = !showLoading && !showError && !showEmpty;
+
+    const categories = this.categoryList.map(k => ({
+      key: k, label: k,
+      isActive: k === cat, isInactive: k !== cat,
+      onClick: () => this.setState({ category: k })
+    }));
+
+    const cartLines = this.state.cart.map(it => ({
+      ...it,
+      priceLabel: money(it.price),
+      lineTotal: money(it.price * it.quantity),
+      onInc: () => this.changeQty(it.product_id, 1),
+      onDec: () => this.changeQty(it.product_id, -1),
+      onRemove: () => this.removeLine(it.product_id)
+    }));
+    const cartCount = this.state.cart.reduce((s, i) => s + i.quantity, 0);
+    const subtotalNum = this.state.cart.reduce((s, i) => s + i.price * i.quantity, 0);
+
+    const n = products.length;
+
+    return {
+      loggedIn, loggedOut: !loggedIn,
+      userName: 'Maya Chen', userInitial: 'M', userEmail: 'maya@microshop.co',
+
+      query: this.state.query,
+      hasQuery: this.state.query.length > 0,
+      onSearch: (e) => this.setState({ query: e.target.value }),
+      onSearchSubmit: (e) => { e.preventDefault(); },
+      clearSearch: () => this.setState({ query: '' }),
+
+      countLabel: showLoading ? 'Loading…' : (n + (n === 1 ? ' product' : ' products')),
+      categories,
+
+      showLoading, showError, showEmpty, showGrid,
+      products,
+      skeletons: Array.from({ length: 8 }, (_, i) => ({ i })),
+
+      emptyClear: () => this.setState({ query: '', category: 'All', stateOverride: 'ready' }),
+      retry: () => this.setState({ stateOverride: 'ready' }),
+
+      cartOpen: this.state.cartOpen,
+      toggleCart: () => this.setState(s => ({ cartOpen: !s.cartOpen })),
+      closeCart: () => this.setState({ cartOpen: false }),
+      cartLines,
+      cartEmpty: this.state.cart.length === 0,
+      cartHasItems: this.state.cart.length > 0,
+      cartCount,
+      hasCartCount: cartCount > 0,
+      subtotal: money(subtotalNum),
+
+      accountOpen: this.state.accountOpen,
+      toggleAccount: () => this.setState(s => ({ accountOpen: !s.accountOpen })),
+      login: () => this.setState({ loggedInOverride: true, accountOpen: false }, () => this.flash('Signed in as Maya')),
+      logout: () => this.setState({ loggedInOverride: false, accountOpen: false }),
+
+      toast: this.state.toast,
+      hasToast: this.state.toast.length > 0
+    };
+  }
+}
+</script>
+</body>
+</html>
